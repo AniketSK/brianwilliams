@@ -23,8 +23,8 @@ module.exports = {
         if (action === 'post') {
           bot.say({
             channel: '#' + options.channel,
-            username: 'Brian Williams: Dev Team News Anchor',
-            icon_url: 'http://dev.tylershambora.com/images/father-williams.jpg',
+            username: process.env.BOT_DISPLAY_NAME,
+            icon_url: process.env.BOT_DISPLAY_ICON,
             text: '<!channel>\n\n*Updates for ' + options.date + ':*',
             attachments: options.message
           });

@@ -7,6 +7,8 @@ var responses            = require('./responses.js');
 
 var whitelistedUsers     = process.env.WHITELIST_USERS.split(',');
 var readOnlyChannels     = process.env.READ_ONLY_CHANNELS.split(',');
+var botDisplayName	 = process.env.BOT_DISPLAY_NAME
+var botDisplayIcon	 = process.env.BOT_DISPLAY_ICON
 
 
 // Init ===============================================
@@ -162,8 +164,8 @@ controller.hears([/post to (\S+)\n([\s\S]*)/], 'direct_message', function(bot, m
       bot.startConversation(message, function(err, convo) {
         convo.say('*I\'m about to post the following:*');
         convo.say({
-          username: 'Brian Williams: Dev Team News Anchor',
-          icon_url: 'http://dev.tylershambora.com/images/father-williams.jpg',
+          username: botDisplayName,
+          icon_url: botDisplayIcon,
           text: '<!channel>\n\n*Updates for ' + theDate + ':*',
           attachments: parsedMessages
         });
