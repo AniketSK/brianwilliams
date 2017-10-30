@@ -194,39 +194,6 @@ controller.hears(['hey mister'], ['direct_message', 'mention', 'direct_mention']
     });
 });
 
-// controller.hears([/delete (\S+) from (\S+)/], ['direct_message'], function(bot, message) {
-//   var channelOptions = {
-//     token: bot.config.token,
-//     channel: message.match[2],
-//   };
-
-//   var deleteOptions = {
-//     token: process.env.MEGA_TOKEN,
-//     ts: message.match[1],
-//     channel: message.match[2],
-//     as_user: true
-//   };
-
-//   bot.api.channels.info(channelOptions, function (err, response) {
-//     if (!response.ok) {
-//       console.log(response);
-//       bot.reply(message, 'incorrect channel id');
-//     } else if (message.match[1][9] !== '.') {
-//       bot.reply(message, 'incorrect time stamp');
-//     } else {
-//       bot.startConversation(message, function(err, convo) {
-//         convo.say('*I\'m about to delete:*');
-//         convo.say(`https://bva.slack.com/archives/${response.channel.name}/p${message.match[1].replace('.', '')}`);
-//         convo.ask(responses.confirm(bot, deleteOptions), [
-//           responses.yes(bot, 'delete', deleteOptions),
-//           responses.no(bot),
-//           responses.default()
-//         ]);
-//       });
-//     }
-//   });
-// });
-
 controller.on('direct_message, mention, direct_mention', function(bot, message) {
   bot.api.reactions.add({
     timestamp: message.ts,
@@ -292,38 +259,3 @@ controller.on('rtm_open', function(bot) {
 controller.on('rtm_close', function() {
   console.log('** The RTM api just closed');
 });
-
-var deleteMessageChannel = function(realName) {
-      var options = {
-        token: process.env.MEGA_TOKEN,
-        ts: message.ts,
-        channel: message.channel,
-        as_user: true
-      };
-
-      console.log(options);
-
-      console.log('%s said: "%s"', realName, message.text);
-      console.log('Attempting to delete the message.' );
-
-      // this whole block looks pretty ripe for some abstraction and recursion (tsham)
-      bot.api.chat.delete(options, function(err, response) {
-        if (!response.ok) {
-          console.log('Unable to delete due to error: ' + err);
-          console.log('Trying one more time in 2 seconds');
-          setTimeout(function() {
-            bot.api.chat.delete(options, function(err, response) {
-              if (!response.ok) {
-                console.log('Unable to delete after a second attempt due to error: ' + err);
-              }
-            });
-          }, 2000);
-        } else {
-          console.log('Message successfully deleted!');
-        }
-      });
-    };
-
-var sayMessageWasAllowed = function(realName) {
-  console.log("The message was allowed because it was from " + realName);
-}
