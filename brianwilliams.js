@@ -187,6 +187,10 @@ controller.hears(['hey mister'], ['direct_message', 'mention', 'direct_mention']
       if (result) {
         bot.reply(message, 'Hey! You\'re pretty valid!');
       }
+    },
+    function(result) {
+      bot.reply(message, 'Hello!');
+      bot.reply(message, 'What a nice day to chat with bots!');
     });
 });
 
@@ -240,7 +244,56 @@ controller.on('direct_message, mention, direct_mention', function(bot, message) 
 
 controller.hears([/[\s\S]*/], ['direct_message', 'direct_mention', 'mention', 'ambient'], function(bot, message) {
   if (readOnlyChannels.indexOf(message.channel) !== -1) {
-    getRealNameFromId(bot, message.user).then(function(realName) {
+    getRealNameFromId(bot, message.user)
+    .then(isValidUser)
+    .then(function(valid) {
+
+      if (valid) {
+        console.log('"%s was a valid user, not deleting', message.user);
+      } else { 
+
+      var options = {
+        token: process.env.MEGA_TOKEN,
+        ts: message.ts,
+        channel: message.channel,
+        as_user: true
+      };
+
+      console.log(options);
+
+      console.log('%s said: "%s"', valid, message.text);
+      console.log('Attempting to delete the message.' );
+
+      // this whole block looks pretty ripe for some abstraction and recursion (tsham)
+      bot.api.chat.delete(options, function(err, response) {
+        if (!response.ok) {
+          console.log('Unable to delete due to error: ' + err);
+          console.log('Trying one more time in 2 seconds');
+          setTimeout(function() {
+            bot.api.chat.delete(options, function(err, response) {
+              if (!response.ok) {
+                console.log('Unable to delete after a second attempt due to error: ' + err);
+              }
+            });
+          }, 2000);
+        } else {
+          console.log('Message successfully deleted!');
+        }
+      });
+    }
+    });
+  }
+});
+
+controller.on('rtm_open', function(bot) {
+  console.log('** The RTM api just connected: ' + bot.identity.name);
+});
+
+controller.on('rtm_close', function() {
+  console.log('** The RTM api just closed');
+});
+
+var deleteMessageChannel = function(realName) {
       var options = {
         token: process.env.MEGA_TOKEN,
         ts: message.ts,
@@ -269,14 +322,8 @@ controller.hears([/[\s\S]*/], ['direct_message', 'direct_mention', 'mention', 'a
           console.log('Message successfully deleted!');
         }
       });
-    });
-  }
-});
+    };
 
-controller.on('rtm_open', function(bot) {
-  console.log('** The RTM api just connected: ' + bot.identity.name);
-});
-
-controller.on('rtm_close', function() {
-  console.log('** The RTM api just closed');
-});
+var sayMessageWasAllowed = function(realName) {
+  console.log("The message was allowed because it was from " + realName);
+}
